@@ -5,7 +5,7 @@
 
 ## Pre-requisite
 You need following sofrware on your machine.
-- Docker
+- [Docker](https://www.docker.com/)
 - Git client
 
 ## Running Jaeger
