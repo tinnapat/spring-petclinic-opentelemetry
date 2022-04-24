@@ -35,12 +35,22 @@ Petclinic is a [Spring Boot](https://spring.io/guides/gs/spring-boot) applicatio
 git clone https://github.com/tinnapat/spring-petclinic-opentelemetry.git
 cd spring-petclinic-opentelemetry
 ./mvnw package
-java -jar target/*.jar
+
+java -javaagent:opentelemetry-javaagent.jar \
+  -Dotel.traces.exporter=jaeger \
+  -Dotel.exporter.jaeger.endpoint=http://localhost:14250 \
+  -Dotel.propagators=jaeger \
+  -Dotel.service.name=spring-petclinic \
+  -Dotel.metrics.exporter=none; \
+  -jar target/*.jar
 ```
+**Note**: You need to start Jaeger before starting spring-petclinic.
 
 You can then access petclinic here: http://localhost:8080/
 
 <img width="1042" alt="petclinic-screenshot" src="https://cloud.githubusercontent.com/assets/838318/19727082/2aee6d6c-9b8e-11e6-81fe-e889a5ddfded.png">
+
+You can browser through each menu and add more data.
 
 Tracing can be viewed via Jaeger UI which can be access via http://localhost:16686. 
 
