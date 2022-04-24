@@ -37,10 +37,10 @@ cd spring-petclinic-opentelemetry
 ./mvnw package
 
 java -javaagent:opentelemetry-javaagent.jar \
+  -Dotel.service.name=spring-petclinic \
   -Dotel.traces.exporter=jaeger \
   -Dotel.exporter.jaeger.endpoint=http://localhost:14250 \
-  -Dotel.propagators=jaeger \
-  -Dotel.service.name=spring-petclinic \
+  -Dotel.propagators=b3multi,jaeger \
   -Dotel.metrics.exporter=none; \
   -jar target/*.jar
 ```
