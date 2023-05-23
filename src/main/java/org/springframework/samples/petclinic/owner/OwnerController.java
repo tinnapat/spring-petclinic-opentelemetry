@@ -18,6 +18,11 @@ package org.springframework.samples.petclinic.owner;
 import java.util.List;
 import java.util.Map;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +56,9 @@ class OwnerController {
 	public OwnerController(OwnerRepository clinicService) {
 		this.owners = clinicService;
 	}
+
+	@Autowired
+	private Tracer tracer;
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
@@ -88,9 +96,16 @@ class OwnerController {
 	@GetMapping("/owners")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
 			Model model) {
-		// allow parameterless GET request for /owners to return all records
-		if (owner.getLastName() == null) {
-			owner.setLastName(""); // empty string signifies broadest possible search
+
+		Span span = tracer.spanBuilder("Validate last name").setAttribute("lastName", owner.getLastName()).startSpan();
+		try {
+			// allow parameterless GET request for /owners to return all records
+			if (owner.getLastName() == null) {
+				owner.setLastName(""); // empty string signifies broadest possible search
+			}
+		}
+		finally {
+			span.end();
 		}
 
 		// find owners by last name
@@ -121,7 +136,9 @@ class OwnerController {
 		return "owners/ownersList";
 	}
 
-	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+	@WithSpan
+	private Page<Owner> findPaginatedForOwnersLastName(@SpanAttribute("page") int page,
+			@SpanAttribute("lastName") String lastname) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return owners.findByLastName(lastname, pageable);

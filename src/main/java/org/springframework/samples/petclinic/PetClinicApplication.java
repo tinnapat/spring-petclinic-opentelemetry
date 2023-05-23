@@ -16,8 +16,12 @@
 
 package org.springframework.samples.petclinic;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Tracer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 
 /**
@@ -32,6 +36,16 @@ public class PetClinicApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PetClinicApplication.class, args);
+	}
+
+	@Bean
+	public OpenTelemetry openTelemetry() {
+		return GlobalOpenTelemetry.get();
+	}
+
+	@Bean
+	public Tracer tracer(OpenTelemetry openTelemetry) {
+		return openTelemetry.getTracer("tech.kbtg.demo.observability.spring-petclinic");
 	}
 
 }
