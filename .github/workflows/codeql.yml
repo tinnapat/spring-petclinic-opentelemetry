@@ -52,7 +52,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'microsoft'
-        cache: mavens
+        cache: maven
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
