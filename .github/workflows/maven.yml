@@ -37,3 +37,9 @@ jobs:
       with:
         name: bom.json
         path: target/bom.json
+    - uses: actions/checkout@v3
+    - name: Submit Dependency Snapshot
+      uses: advanced-security/maven-dependency-submission-action@v3
+      with:
+        ignore-maven-wrapper: true
+      
