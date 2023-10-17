@@ -15,9 +15,13 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 
+import io.opentelemetry.api.trace.Span;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +47,8 @@ import jakarta.validation.Valid;
  */
 @Controller
 class OwnerController {
+
+	private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -152,6 +158,9 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+		logger.info("Enter showOwner with ownerId={}", ownerId);
+		Span.current().setAttribute("kbtg.demo.owner_id", ownerId);
+
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
 		Owner owner = this.owners.findById(ownerId);
 		mav.addObject(owner);
