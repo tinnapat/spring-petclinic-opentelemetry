@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 package org.springframework.samples.petclinic.system;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Test class for {@link CrashController}
@@ -31,16 +30,12 @@ import org.junit.jupiter.api.Test;
 // luck ((plain(st) UNIT test)! :)
 class CrashControllerTests {
 
-	CrashController testee = new CrashController();
+	final CrashController testee = new CrashController();
 
 	@Test
-	void testTriggerException() throws Exception {
-		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-			testee.triggerException();
-		});
-
-		assertEquals("Expected: controller used to showcase what happens when an exception is thrown",
-				thrown.getMessage());
+	void testTriggerException() {
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> testee.triggerException())
+			.withMessageContaining("Expected: controller used to showcase what happens when an exception is thrown");
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.owner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.samples.petclinic.model.Person;
@@ -30,7 +31,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -41,28 +42,29 @@ import jakarta.validation.constraints.NotBlank;
  * @author Sam Brannen
  * @author Michael Isvy
  * @author Oliver Drotbohm
+ * @author Wick Dynex
  */
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
 
-	@Column(name = "address")
+	@Column
 	@NotBlank
 	private String address;
 
-	@Column(name = "city")
+	@Column
 	@NotBlank
 	private String city;
 
-	@Column(name = "telephone")
+	@Column
 	@NotBlank
-	@Digits(fraction = 0, integer = 10)
+	@Pattern(regexp = "\\d{10}", message = "{telephone.invalid}")
 	private String telephone;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "owner_id")
 	@OrderBy("name")
-	private List<Pet> pets = new ArrayList<>();
+	private final List<Pet> pets = new ArrayList<>();
 
 	public String getAddress() {
 		return this.address;
@@ -101,7 +103,7 @@ public class Owner extends Person {
 	/**
 	 * Return the Pet with the given name, or null if none found for this Owner.
 	 * @param name to test
-	 * @return a pet if pet name is already in use
+	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
 		return getPet(name, false);
@@ -110,13 +112,13 @@ public class Owner extends Person {
 	/**
 	 * Return the Pet with the given id, or null if none found for this Owner.
 	 * @param id to test
-	 * @return a pet if pet id is already in use
+	 * @return the Pet with the given id, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(Integer id) {
 		for (Pet pet : getPets()) {
 			if (!pet.isNew()) {
 				Integer compId = pet.getId();
-				if (compId.equals(id)) {
+				if (Objects.equals(compId, id)) {
 					return pet;
 				}
 			}
@@ -127,10 +129,10 @@ public class Owner extends Person {
 	/**
 	 * Return the Pet with the given name, or null if none found for this Owner.
 	 * @param name to test
-	 * @return a pet if pet name is already in use
+	 * @param ignoreNew whether to ignore new pets (pets that are not saved yet)
+	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name, boolean ignoreNew) {
-		name = name.toLowerCase();
 		for (Pet pet : getPets()) {
 			String compName = pet.getName();
 			if (compName != null && compName.equalsIgnoreCase(name)) {
